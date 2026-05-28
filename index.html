@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador PageRank - Proyecto de Andres Yaguno | CS</title>
+    <meta name="description" content="Demostración interactiva del algoritmo PageRank. Desarrollado por Andres Yaguno para la cátedra del Dr. Ernesto Cuadros.">
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background-color: #f4f6f9; color: #333; margin: 40px; }
+        header, main, footer { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        header { margin-bottom: 20px; border-bottom: 3px solid #2c3e50; }
+        footer { margin-top: 20px; text-align: center; font-size: 0.8em; color: #7f8c8d; }
+        .network-container { display: flex; justify-content: space-around; margin: 30px 0; }
+        .node { padding: 20px; border: 2px solid #34495e; border-radius: 50%; width: 60px; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; background: #ecf0f1; transition: background 0.3s; }
+        .controls { text-align: center; margin: 20px 0; }
+        button { padding: 10px 20px; font-weight: bold; background-color: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #27ae60; }
+        code { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Simulador Algorítmico: PageRank</h1>
+    <p><strong>Autor:</strong> Andres Yaguno (Primer Semestre - Computer Science)</p>
+    <p><em>Proyecto de aplicación de Álgebra Lineal y Teoría de Grafos.</em></p>
+</header>
+
+<main>
+    <section>
+        <h2>El Modelo del Grafo Dirigido</h2>
+        <p>Imaginemos una micro-web con 3 nodos donde:</p>
+        <ul>
+            <li>El <strong>Nodo A</strong> enlaza a B y C.</li>
+            <li>El <strong>Nodo B</strong> enlaza solo a C.</li>
+            <li>El <strong>Nodo C</strong> enlaza de vuelta a A.</li>
+        </ul>
+        
+        <p>Cada iteración calcula el nuevo PageRank usando la fórmula con un factor de amortiguación $d = 0.85$:</p>
+    </section>
+
+    <section class="network-container">
+        <div id="nodeA" class="node">A<br><span id="prA">0.33</span></div>
+        <div id="nodeB" class="node">B<br><span id="prB">0.33</span></div>
+        <div id="nodeC" class="node">C<br><span id="prC">0.33</span></div>
+    </section>
+
+    <div class="controls">
+        <button onclick="calcularIteracion()">Ejecutar Iteración (Paso a Paso)</button>
+        <p><strong>Iteración actual:</strong> <span id="iteracionCount">0</span></p>
+    </div>
+
+    <section>
+        <h3>Análisis Técnico para la Cátedra</h3>
+        <p>Al hacer clic en el botón, el script resuelve el sistema de ecuaciones lineales de forma iterativa (método de las potencias). Verás cómo los valores de PageRank convergen gradualmente hacia un estado estacionario, demostrando las propiedades de una cadena de Markov irreducible y aperiódica.</p>
+    </section>
+</main>
+
+<footer>
+    <p>© 2026 - Código Abierto para fines académicos. Universidad y Cátedra del Dr. Ernesto Cuadros-Vargas.</p>
+</footer>
+
+<script>
+    // Estado inicial: Distribución uniforme de probabilidad (1 / número de nodos)
+    let pr = { A: 0.3333, B: 0.3333, C: 0.3333 };
+    let d = 0.85; // Factor de amortiguación
+    let N = 3;    // Número total de nodos
+    let iteracion = 0;
+
+    function calcularIteracion() {
+        // Enlaces salientes (Out-degrees):
+        // A tiene 2 enlaces (hacia B y C). L(A) = 2
+        // B tiene 1 enlace (hacia C). L(B) = 1
+        // C tiene 1 enlace (hacia A). L(C) = 1
+
+        // Aplicamos la ecuación de PageRank iterativa
+        let nuevoA = ((1 - d) / N) + d * (pr.C / 1);
+        let nuevoB = ((1 - d) / N) + d * (pr.A / 2);
+        let nuevoC = ((1 - d) / N) + d * ((pr.A / 2) + (pr.B / 1));
+
+        // Actualizamos los valores del estado
+        pr.A = nuevoA;
+        pr.B = nuevoB;
+        pr.C = nuevoC;
+        iteracion++;
+
+        // Renderizamos en el HTML truncando a 4 decimales
+        document.getElementById('prA').innerText = pr.A.toFixed(4);
+        document.getElementById('prB').innerText = pr.B.toFixed(4);
+        document.getElementById('prC').innerText = pr.C.toFixed(4);
+        document.getElementById('iteracionCount').innerText = iteracion;
+
+        // Efecto visual: Cambiar color según la autoridad
+        document.getElementById('nodeC').style.backgroundColor = `rgba(46, 204, 113, ${pr.C})`;
+        document.getElementById('nodeA').style.backgroundColor = `rgba(46, 204, 113, ${pr.A})`;
+        document.getElementById('nodeB').style.backgroundColor = `rgba(46, 204, 113, ${pr.B})`;
+    }
+</script>
+
+</body>
+</html>
